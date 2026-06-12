@@ -1,8 +1,7 @@
 # Asset Credits
 
-All illustrations, icons, interface elements, and animations in this prototype
-were created specifically for this submission using original HTML, CSS, and
-inline SVG.
-
-No third-party images, fonts, audio files, external CDNs, or assets from the
-referenced YouTube video are included.
+- SR1 logo: official SR1 website, used only to make this interview prototype
+  consistent with the organization's visual identity.
+- Video: "We Are SR1!" by C.O.O.L. Media Network, embedded from YouTube.
+- Nunito typeface: Google Fonts.
+- Interface icons: original inline SVG.

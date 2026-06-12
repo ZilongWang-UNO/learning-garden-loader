@@ -1,144 +1,221 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#fffaf0">
-  <meta name="description" content="A narrated STEM discovery shown while a lesson loads.">
-  <title>Learning Garden Discovery</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <header class="top-bar">
-    <a class="brand" href="#discovery" aria-label="Learning Garden home">
-      <svg viewBox="0 0 48 48" aria-hidden="true">
-        <path class="stem" d="M24 31V13"/>
-        <path class="leaf" d="M24 19C15 19 12 14 13 8c7-1 12 3 11 11ZM25 14c1-8 6-11 12-10 1 7-4 11-12 10Z"/>
-        <path class="pot" d="M13 29h22l-3 14H17l-4-14Z"/>
-        <path class="rim" d="M11 27h26v6H11z"/>
-      </svg>
-      <span>
-        <strong>Learning Garden</strong>
-        <small>Grow curious.</small>
-      </span>
-    </a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A student-friendly SR1 lesson page prototype."
+    />
+    <title>SR1 Learning | Welcome to SR1</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#lesson-content">Skip to lesson</a>
 
-    <div class="loading-area" aria-live="polite">
-      <div class="loading-copy">
-        <strong id="loadingText">Loading your lesson...</strong>
-        <span id="timeLeft">20 seconds</span>
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="SR1 Learning home">
+        <img
+          src="https://static.wixstatic.com/media/2cfa2c_1f223e7dd1744bbc9c8a6f8cd55435ee~mv2.png/v1/fill/w_172,h_112,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/SR1%20white.png"
+          alt="SR1"
+        />
+      </a>
+
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#">Home</a>
+        <a href="#" class="active" aria-current="page">My Learning</a>
+        <a href="#">Programs</a>
+        <a href="#">Digital Library</a>
+        <a href="#">Help</a>
+      </nav>
+
+      <div class="header-actions">
+        <button class="notification-button" type="button" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" />
+          </svg>
+          <span class="notification-dot"></span>
+        </button>
+
+        <button class="profile-button" type="button" aria-label="Open student profile">
+          <span aria-hidden="true">ZW</span>
+        </button>
+
+        <button
+          class="menu-button"
+          type="button"
+          aria-expanded="false"
+          aria-controls="mobile-navigation"
+          aria-label="Open menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
-      <div
-        class="progress-track"
-        id="progressTrack"
-        role="progressbar"
-        aria-label="Lesson loading progress"
-        aria-valuemin="0"
-        aria-valuemax="100"
-        aria-valuenow="0"
-      >
-        <span id="progressFill"></span>
-      </div>
-    </div>
 
-    <button class="narration-toggle" id="narrationButton" type="button" aria-pressed="true">
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path class="speaker" d="M4 9v6h4l5 4V5L8 9H4Z"/>
-        <path class="waves" d="M16 9c1.4 1.4 1.4 4.6 0 6M19 6c3.4 3.4 3.4 8.6 0 12"/>
-        <path class="slash" d="m4 4 16 16"/>
-      </svg>
-      <span id="narrationLabel">Narration on</span>
-    </button>
-  </header>
+      <nav id="mobile-navigation" class="mobile-nav" aria-label="Mobile navigation" hidden>
+        <a href="#">Home</a>
+        <a href="#" aria-current="page">My Learning</a>
+        <a href="#">Programs</a>
+        <a href="#">Digital Library</a>
+        <a href="#">Help</a>
+      </nav>
+    </header>
 
-  <main class="school-page" id="discovery">
-    <div class="doodle doodle-pencil" aria-hidden="true">✎</div>
-    <div class="doodle doodle-atom" aria-hidden="true">⚛</div>
-    <div class="doodle doodle-star" aria-hidden="true">☆</div>
-    <div class="doodle doodle-ruler" aria-hidden="true"></div>
+    <main id="lesson-content">
+      <section class="course-hero">
+        <div class="page-shell">
+          <nav class="breadcrumbs" aria-label="Breadcrumb">
+            <a href="#">My Learning</a>
+            <span aria-hidden="true">/</span>
+            <a href="#">SR1 Foundations</a>
+            <span aria-hidden="true">/</span>
+            <span aria-current="page">Welcome to SR1</span>
+          </nav>
 
-    <section class="book" aria-labelledby="topicTitle">
-      <div class="book-spine" aria-hidden="true"></div>
+          <div class="course-heading">
+            <div>
+              <span class="eyebrow">SR1 Foundations</span>
+              <h1>Welcome to SR1</h1>
+              <p>Discover how education, health, and technology can strengthen a community.</p>
+            </div>
 
-      <section class="discovery-page">
-        <p class="discovery-label">
-          <span aria-hidden="true">⌕</span>
-          QUICK DISCOVERY
-        </p>
-        <h1 id="topicTitle">Why do leaves look green?</h1>
-        <div class="title-underline" aria-hidden="true"></div>
-
-        <div class="visual-stage" id="visualStage" data-step="0" aria-label="Animated explanation"></div>
-
-        <p class="lesson-note">
-          <span class="tiny-pot" aria-hidden="true">🌱</span>
-          Your lesson will start when it’s ready.
-        </p>
+            <div class="course-progress" aria-label="Course progress: 25 percent">
+              <div class="progress-copy">
+                <span>Course progress</span>
+                <strong id="course-progress-value">25%</strong>
+              </div>
+              <div class="progress-track" aria-hidden="true">
+                <span id="course-progress-fill"></span>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
 
-      <aside class="narration-card" aria-label="Narrated explanation">
-        <span class="tape" aria-hidden="true"></span>
-
-        <div class="voice-row">
-          <div class="teacher-avatar" aria-hidden="true">
-            <span class="hair"></span>
-            <span class="face">
-              <i></i><i></i><b></b>
+      <div class="page-shell lesson-layout">
+        <aside class="course-outline" aria-labelledby="outline-title">
+          <div class="outline-heading">
+            <span class="outline-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z" />
+                <path d="M4 5.5v15A2.5 2.5 0 0 1 6.5 18H20M8 7h8" />
+              </svg>
             </span>
-            <span class="shirt"></span>
+            <div>
+              <p>Course</p>
+              <h2 id="outline-title">SR1 Foundations</h2>
+            </div>
           </div>
-          <div class="voice-wave" aria-hidden="true">
-            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+
+          <ol class="lesson-list">
+            <li class="complete">
+              <button type="button">
+                <span class="lesson-status" aria-label="Completed">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m7 12 3 3 7-7" />
+                  </svg>
+                </span>
+                <span>
+                  <small>Lesson 1</small>
+                  Our community
+                </span>
+              </button>
+            </li>
+            <li class="current" id="current-lesson">
+              <button type="button" aria-current="step">
+                <span class="lesson-status">2</span>
+                <span>
+                  <small>Lesson 2</small>
+                  Welcome to SR1
+                </span>
+                <span class="now-playing">Now playing</span>
+              </button>
+            </li>
+            <li>
+              <button type="button">
+                <span class="lesson-status" aria-hidden="true">3</span>
+                <span>
+                  <small>Lesson 3</small>
+                  Health and science
+                </span>
+              </button>
+            </li>
+            <li>
+              <button type="button">
+                <span class="lesson-status" aria-hidden="true">4</span>
+                <span>
+                  <small>Lesson 4</small>
+                  Technology in action
+                </span>
+              </button>
+            </li>
+          </ol>
+
+          <div class="outline-footer">
+            <span id="lesson-progress-copy">1 of 4 lessons complete</span>
+            <div class="mini-progress" aria-hidden="true">
+              <span id="lesson-progress-fill"></span>
+            </div>
           </div>
-        </div>
+        </aside>
 
-        <p class="voice-status" id="voiceStatus">Starting our quick discovery...</p>
+        <section class="lesson-panel" aria-labelledby="lesson-title">
+          <div class="lesson-meta">
+            <span class="subject-pill">Community & STEM</span>
+            <span class="duration">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              1 min
+            </span>
+          </div>
 
-        <div class="caption-list" id="captionList" aria-live="polite">
-          <article class="caption is-active" data-caption="0">
-            <span>1</span>
-            <p id="caption0"></p>
-          </article>
-          <article class="caption" data-caption="1">
-            <span>2</span>
-            <p id="caption1"></p>
-          </article>
-          <article class="caption" data-caption="2">
-            <span>3</span>
-            <p id="caption2"></p>
-          </article>
-        </div>
+          <h2 id="lesson-title">We Are SR1!</h2>
+          <p class="lesson-intro">
+            Watch this short introduction to learn what SR1 does and who it serves.
+          </p>
 
-        <div class="card-actions">
-          <button class="another-button" id="anotherButton" type="button">
-            Show me another
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M20 11a8 8 0 1 0-2 5M20 4v7h-7"/>
-            </svg>
-          </button>
-          <span id="topicCounter">1 of 3</span>
-        </div>
-      </aside>
-    </section>
+          <div class="video-frame">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/oJFLO-0cZr0?rel=0"
+              title="We Are SR1!"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen
+            ></iframe>
+          </div>
 
-    <section class="ready-card" id="readyCard" role="dialog" aria-modal="true" aria-labelledby="readyTitle" hidden>
-      <span class="ready-spark" aria-hidden="true">✦</span>
-      <p>YOUR LESSON IS READY</p>
-      <h2 id="readyTitle">Keep growing that idea!</h2>
-      <strong id="readyTakeaway"></strong>
-      <button id="startLesson" type="button">Start lesson <span aria-hidden="true">▶</span></button>
-    </section>
+          <div class="lesson-actions">
+            <div class="lesson-note">
+              <span aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="M12 3a7 7 0 0 0-4 12.74V19h8v-3.26A7 7 0 0 0 12 3Z" />
+                  <path d="M9 22h6M9 15h6" />
+                </svg>
+              </span>
+              <p><strong>While you watch:</strong> Notice the three areas SR1 focuses on.</p>
+            </div>
 
-    <section class="lesson-preview" id="lessonPreview" hidden>
-      <button id="restartButton" type="button">Replay loading demo</button>
-      <div>
-        <span aria-hidden="true">▶</span>
-        <h2>STEM Foundations</h2>
-        <p>The video lesson would begin here.</p>
+            <button class="next-button" type="button">
+              Mark complete
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m9 18 6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+        </section>
       </div>
-    </section>
-  </main>
+    </main>
 
-  <script src="script.js"></script>
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
