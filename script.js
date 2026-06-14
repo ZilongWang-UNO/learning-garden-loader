@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260614-30";
+import { topics } from "./topics.js?v=20260614-31";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
@@ -28,6 +28,7 @@ const orientationHintClose = document.querySelector("#orientation-hint-close");
 const siteHeader = document.querySelector(".site-header");
 const mainContent = document.querySelector("main");
 const watchVideoButton = document.querySelector("#watch-video-button");
+const watchVideoLabel = document.querySelector("#watch-video-label");
 const upNextBar = document.querySelector(".up-next-bar");
 const loadingDuration = 20_000;
 const stepTimes = [0, 6500, 13_000];
@@ -263,6 +264,9 @@ function prepareDiscovery() {
   loadingCopy.textContent = "Lesson loading...";
   upNextBar.classList.remove("is-ready");
   watchVideoButton.hidden = true;
+  watchVideoLabel.textContent = isMobileDevice()
+    ? "Open video player"
+    : "Play lesson video";
 
   window.requestAnimationFrame(() => {
     window.requestAnimationFrame(() => setDiscoveryStep(0));
@@ -273,14 +277,12 @@ function loadVideo() {
   const iframe = document.createElement("iframe");
   const mobilePlayback = mobilePlayerSessionActive || isMobileDevice();
   const playerParams = new URLSearchParams({
-    autoplay: "1",
+    autoplay: mobilePlayback ? "0" : "1",
     rel: "0",
     hl: "en",
   });
 
-  if (!mobilePlayback) {
-    playerParams.set("playsinline", "1");
-  }
+  playerParams.set("playsinline", mobilePlayback ? "0" : "1");
 
   lessonVideoActive = true;
   mobilePlayerSessionActive = false;
