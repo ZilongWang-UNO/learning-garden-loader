@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260614-26";
+import { topics } from "./topics.js?v=20260614-27";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
@@ -40,7 +40,7 @@ let narrationText = "";
 let narrationOffset = 0;
 let narrationGeneration = 0;
 let loadingStarted = false;
-let mobilePlayerSawLandscape = false;
+let mobilePlayerSessionActive = false;
 
 function isMobileDevice() {
   const mobileUserAgent =
@@ -76,48 +76,23 @@ function closeOrientationModal({ restoreFocus = false } = {}) {
 }
 
 function enterMobileViewportPlayer() {
-  mobilePlayerSawLandscape = window.matchMedia("(orientation: landscape)").matches;
+  mobilePlayerSessionActive = true;
   document.body.classList.add("mobile-player-open");
   videoFrame.classList.add("is-mobile-player");
 }
 
-function exitMobileViewportPlayer() {
-  mobilePlayerSawLandscape = false;
+function leaveMobileViewportLayout() {
   document.body.classList.remove("mobile-player-open");
   videoFrame.classList.remove("is-mobile-player");
 }
 
-async function enterMobilePlayerMode() {
+function enterMobilePlayerMode() {
   if (!isMobileDevice()) {
     return true;
   }
 
   enterMobileViewportPlayer();
-
-  const requestFullscreen =
-    videoFrame.requestFullscreen?.bind(videoFrame) ||
-    videoFrame.webkitRequestFullscreen?.bind(videoFrame);
-
-  if (!requestFullscreen) {
-    return false;
-  }
-
-  try {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-      await requestFullscreen();
-    }
-
-    const lockOrientation = window.screen?.orientation?.lock;
-    if (typeof lockOrientation === "function") {
-      try {
-        await lockOrientation.call(window.screen.orientation, "landscape");
-      } catch {}
-    }
-
-    return true;
-  } catch {
-    return false;
-  }
+  return true;
 }
 
 function continueNarration() {
@@ -447,8 +422,8 @@ narrationButton.addEventListener("click", () => {
   updateNarrationVolume();
 });
 
-orientationHintClose.addEventListener("click", async () => {
-  await enterMobilePlayerMode();
+orientationHintClose.addEventListener("click", () => {
+  enterMobilePlayerMode();
   closeOrientationModal();
   startVideoLoading();
 });
@@ -460,43 +435,21 @@ orientationHint.addEventListener("keydown", (event) => {
 });
 
 function handleMobileOrientationChange() {
-  if (!videoFrame.classList.contains("is-mobile-player")) {
+  if (!mobilePlayerSessionActive) {
     return;
   }
 
   if (window.matchMedia("(orientation: landscape)").matches) {
-    mobilePlayerSawLandscape = true;
-    window.setTimeout(() => {
-      videoFrame.scrollIntoView({
-        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ? "auto"
-          : "smooth",
-        block: "center",
-      });
-    }, 200);
+    document.body.classList.add("mobile-player-open");
+    videoFrame.classList.add("is-mobile-player");
     return;
   }
 
-  if (
-    mobilePlayerSawLandscape &&
-    !document.fullscreenElement &&
-    !document.webkitFullscreenElement
-  ) {
-    exitMobileViewportPlayer();
-  }
+  leaveMobileViewportLayout();
 }
 
 window.addEventListener("orientationchange", handleMobileOrientationChange);
 window.addEventListener("resize", handleMobileOrientationChange);
-
-function handleFullscreenChange() {
-  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-    window.screen?.orientation?.unlock?.();
-  }
-}
-
-document.addEventListener("fullscreenchange", handleFullscreenChange);
-document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
 
 completeButton.addEventListener("click", () => {
   currentLesson.classList.remove("current");
