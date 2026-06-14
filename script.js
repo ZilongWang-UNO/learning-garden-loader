@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260614-34";
+import { topics } from "./topics.js?v=20260614-35";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
@@ -43,6 +43,10 @@ let narrationGeneration = 0;
 let loadingStarted = false;
 let mobilePlayerSessionActive = false;
 let lessonVideoActive = false;
+let youtubeApiPromise;
+let lessonPlayer;
+let lessonPlaybackAttemptedAt = 0;
+let lessonPlaybackRetryUsed = false;
 
 function isMobileDevice() {
   const mobileUserAgent =
@@ -273,9 +277,57 @@ function prepareDiscovery() {
   });
 }
 
+function loadYouTubeApi() {
+  if (window.YT?.Player) {
+    return Promise.resolve(window.YT);
+  }
+
+  if (youtubeApiPromise) {
+    return youtubeApiPromise;
+  }
+
+  youtubeApiPromise = new Promise((resolve, reject) => {
+    const previousReady = window.onYouTubeIframeAPIReady;
+    const script = document.createElement("script");
+
+    window.onYouTubeIframeAPIReady = () => {
+      previousReady?.();
+      resolve(window.YT);
+    };
+
+    script.src = "https://www.youtube.com/iframe_api";
+    script.addEventListener("error", reject, { once: true });
+    document.head.appendChild(script);
+  });
+
+  return youtubeApiPromise;
+}
+
+function handleLessonPlayerState(event) {
+  if (
+    event.data === window.YT.PlayerState.BUFFERING ||
+    event.data === window.YT.PlayerState.PLAYING
+  ) {
+    lessonPlaybackAttemptedAt ||= performance.now();
+    return;
+  }
+
+  const pausedImmediately =
+    event.data === window.YT.PlayerState.PAUSED &&
+    lessonPlaybackAttemptedAt > 0 &&
+    performance.now() - lessonPlaybackAttemptedAt < 2000;
+
+  if (pausedImmediately && !lessonPlaybackRetryUsed) {
+    lessonPlaybackRetryUsed = true;
+    window.setTimeout(() => lessonPlayer.playVideo(), 150);
+  }
+}
+
 function loadVideo() {
-  const iframe = document.createElement("iframe");
   const mobilePlayback = mobilePlayerSessionActive || isMobileDevice();
+  const playerMount = document.createElement("div");
+
+  playerMount.id = "lesson-video-player";
 
   window.speechSynthesis?.cancel();
   lessonNote.classList.remove("is-pending");
@@ -292,18 +344,29 @@ function loadVideo() {
   lessonVideoActive = true;
   mobilePlayerSessionActive = false;
   syncMobileViewportLayout();
-
-  iframe.src =
-    `https://www.youtube.com/embed/oJFLO-0cZr0?${playerParams}`;
-  iframe.title = "We Are SR1!";
-  iframe.allow =
-    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
-  iframe.referrerPolicy = "strict-origin-when-cross-origin";
-  iframe.allowFullscreen = true;
-
-  loadingShell.hidden = true;
   videoFrame.classList.remove("is-loading");
-  videoFrame.appendChild(iframe);
+  videoFrame.appendChild(playerMount);
+
+  loadYouTubeApi()
+    .then((YT) => {
+      lessonPlayer = new YT.Player(playerMount, {
+        width: "100%",
+        height: "100%",
+        videoId: "oJFLO-0cZr0",
+        host: "https://www.youtube.com",
+        playerVars: Object.fromEntries(playerParams),
+        events: {
+          onReady(event) {
+            event.target.getIframe().title = "We Are SR1!";
+            loadingShell.hidden = true;
+          },
+          onStateChange: handleLessonPlayerState,
+        },
+      });
+    })
+    .catch(() => {
+      loadingCopy.textContent = "Video could not load. Please try again.";
+    });
 }
 
 function startVideoLoading() {
