@@ -1,47 +1,65 @@
 # SR1 Lesson Loader
 
-A framework-free prototype that turns a 20-second video delay into a short,
-narrated STEM discovery for K-12 learners.
+A student-friendly educational loading experience created for the SR1
+Full-stack Engineer Assessment. It turns a simulated 20-second lesson-video
+delay into a short, narrated STEM discovery for K-12 learners.
 
 [View the live prototype](https://zilongwang-uno.github.io/sr1-learning-loader/)
 
 ![SR1 Quick Discovery loading experience](preview.png)
 
-## Experience
+## The experience
 
-When a student starts the lesson, the video area temporarily becomes a
-`Quick Discovery`. A three-part explanation is read aloud while a synchronized
-illustration develops on screen. A persistent `Up next` bar makes it clear that
-the discovery is playing while the lesson video loads.
+When a student selects the lesson video, the player becomes a `Quick Discovery`
+for 20 seconds. A three-part explanation is read aloud while captions and an
+animated illustration develop in sync. The persistent `Up next` bar keeps the
+lesson title visible and communicates that the video is still loading.
 
-After 20 seconds, the interface pauses and lets the student choose when to
-start the lesson video.
+When loading finishes, the experience pauses on a clear `Play lesson video`
+button instead of starting the video unexpectedly.
 
-The prototype includes three discoveries:
+## Key features
 
-- Why leaves look green
-- Why programmers use loops
-- How coordinates guide a robot
+- Three animated discoveries covering science, programming, and coordinates
+- Synchronized narration, captions, and visual states
+- Random topic rotation without repeats until every topic has been shown
+- Narration mute control that does not pause the visual sequence
+- User-controlled transition from the discovery to the lesson video
+- Responsive layouts for desktop, tablet, portrait mobile, and landscape mobile
+- Keyboard focus states, semantic controls, readable contrast, and
+  reduced-motion support
+- Lesson completion feedback with updated progress and a short celebration
 
-Topics are selected randomly without repeating until the student has seen the
-full set. Viewing history is stored locally in the browser.
+Topic history is stored in `localStorage`. Once the learner has viewed the full
+set, the cycle resets automatically.
 
 ## Design decisions
 
 - The waiting experience stays inside the video player so the page does not
   shift or lose context.
-- `Quick Discovery`, the loading status, and `Up next` establish a clear
-  relationship between the activity and the lesson video.
+- `Quick Discovery`, loading status, and `Up next` distinguish the temporary
+  activity from the lesson itself.
 - Narration and matching captions support different reading preferences.
 - Students can mute narration without pausing the visual explanation.
-- Keyboard focus styles, semantic controls, readable contrast, responsive
-  layouts, and reduced-motion support improve accessibility.
+- The lesson video waits for a second user action after loading, giving students
+  time to finish reading before moving on.
+- Mobile learners receive a landscape suggestion before the discovery begins.
+  Portrait mode remains available, while landscape mode uses the available
+  viewport more like a video player.
 
 ## Technical approach
 
 The project uses plain HTML, CSS, and JavaScript with no dependencies or build
-step. The animated illustrations are inline SVG, narration uses the browser's
-Speech Synthesis API, and topic rotation uses `localStorage`.
+step:
+
+- Inline SVG provides lightweight, topic-specific animation.
+- The Web Speech API provides narration using an available English system voice.
+- `requestAnimationFrame` synchronizes the 20-second loading progress and
+  discovery stages.
+- `localStorage` manages non-repeating topic rotation.
+- YouTube is embedded only after the discovery is complete.
+- Discovery content is separated into `topics.js`, so another topic can be added
+  without changing the loading controller.
 
 ## Run locally
 
@@ -50,6 +68,12 @@ python3 -m http.server 4173
 ```
 
 Open `http://localhost:4173`.
+
+To review a specific discovery without changing topic history:
+
+- `http://localhost:4173/?topic=leaves`
+- `http://localhost:4173/?topic=loops`
+- `http://localhost:4173/?topic=coordinates`
 
 ## Project structure
 
@@ -61,9 +85,3 @@ script.js    Loading sequence, narration, topic rotation, and interactions
 ```
 
 No package installation or build step is required.
-
-On mobile, selecting the lesson first pauses at a rotate-device prompt. The
-20-second discovery begins only after the student confirms. The player then
-requests full-screen landscape mode so the discovery and lesson video share the
-same immersive surface. Android browsers generally support the automatic
-transition; iPhone browsers may require the student to rotate manually.

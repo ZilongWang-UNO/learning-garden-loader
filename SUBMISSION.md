@@ -1,8 +1,8 @@
 # SR1 Educational Loading Screen
 
-Prototype: https://zilongwang-uno.github.io/learning-garden-loader/
+Prototype: https://zilongwang-uno.github.io/sr1-learning-loader/
 
-Repository: https://github.com/ZilongWang-UNO/learning-garden-loader
+Repository: https://github.com/ZilongWang-UNO/sr1-learning-loader
 
 ## Design explanation
 
@@ -25,5 +25,5 @@ The implementation uses semantic HTML, responsive CSS, inline SVG animation,
 the browser Speech Synthesis API, and `localStorage`. It also includes captions,
 keyboard focus states, a narration mute control, readable contrast, and
 reduced-motion support. Mobile learners see a landscape reminder before the
-discovery starts; after confirmation, the player requests full-screen landscape
-mode with a manual-rotation fallback on iPhone.
+discovery starts. Portrait mode remains available, while landscape mode gives
+the discovery a more immersive, video-like layout.
