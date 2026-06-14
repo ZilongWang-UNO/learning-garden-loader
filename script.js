@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260614-32";
+import { topics } from "./topics.js?v=20260614-33";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
