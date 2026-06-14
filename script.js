@@ -1,16 +1,297 @@
+import { topics } from "./topics.js?v=20260613-21";
+
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
 const completeButton = document.querySelector(".next-button");
 const currentLesson = document.querySelector("#current-lesson");
 const currentLessonButton = currentLesson.querySelector("button");
 const lessonStatus = currentLesson.querySelector(".lesson-status");
-const nowPlaying = currentLesson.querySelector(".now-playing");
 const courseProgress = document.querySelector(".course-progress");
 const courseProgressValue = document.querySelector("#course-progress-value");
 const courseProgressFill = document.querySelector("#course-progress-fill");
 const lessonProgressCopy = document.querySelector("#lesson-progress-copy");
 const lessonProgressFill = document.querySelector("#lesson-progress-fill");
 const lessonPanel = document.querySelector(".lesson-panel");
+const lessonNote = document.querySelector(".lesson-note");
+const videoFrame = document.querySelector("#video-frame");
+const videoPoster = document.querySelector("#video-poster");
+const loadingShell = document.querySelector("#loading-shell");
+const loadingCopy = document.querySelector(".garden-loading-copy");
+const loadingTrack = document.querySelector(".video-loading-track");
+const loadingFill = document.querySelector("#video-loading-fill");
+const discoveryTitle = document.querySelector("#discovery-title");
+const discoveryVisual = document.querySelector("#discovery-visual");
+const discoveryCaptions = [...document.querySelectorAll(".discovery-caption")];
+const narrationButton = document.querySelector("#narration-button");
+const watchVideoButton = document.querySelector("#watch-video-button");
+const upNextBar = document.querySelector(".up-next-bar");
+const loadingDuration = 20_000;
+const stepTimes = [0, 6500, 13_000];
+const viewedTopicsKey = "sr1-viewed-discovery-topics";
+let activeTopic;
+let activeStep = -1;
+let narrationEnabled = true;
+let activeUtterance;
+let narrationText = "";
+let narrationOffset = 0;
+let narrationGeneration = 0;
+const compactScreen = window.matchMedia("(max-width: 640px)");
+
+function requestMobileLandscape() {
+  if (!compactScreen.matches) {
+    return;
+  }
+
+  const lockOrientation = window.screen?.orientation?.lock;
+  if (typeof lockOrientation !== "function") {
+    return;
+  }
+
+  try {
+    Promise.resolve(
+      lockOrientation.call(window.screen.orientation, "landscape"),
+    ).catch(() => {
+      // Most mobile browsers only permit orientation locking in fullscreen apps.
+    });
+  } catch {
+    // Continue with the responsive portrait layout when locking is unavailable.
+  }
+}
+
+function continueNarration() {
+  if (!("speechSynthesis" in window)) {
+    return;
+  }
+
+  const generation = ++narrationGeneration;
+  const startingOffset = narrationOffset;
+  const remainingText = narrationText.slice(startingOffset);
+
+  if (!remainingText) {
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(remainingText);
+  const voice = chooseNaturalVoice();
+
+  if (voice) {
+    utterance.voice = voice;
+  }
+
+  utterance.lang = "en-US";
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+  utterance.volume = narrationEnabled ? 1 : 0;
+  utterance.addEventListener("boundary", (event) => {
+    if (generation === narrationGeneration) {
+      narrationOffset = startingOffset + event.charIndex;
+    }
+  });
+  activeUtterance = utterance;
+  window.speechSynthesis.speak(utterance);
+}
+
+function chooseNaturalVoice() {
+  const voices = window.speechSynthesis.getVoices();
+  const preferredNames = [
+    "Ava (Premium)",
+    "Ava (Enhanced)",
+    "Ava",
+    "Samantha (Enhanced)",
+    "Samantha",
+    "Allison",
+    "Susan",
+  ];
+
+  for (const name of preferredNames) {
+    const preferredVoice = voices.find((voice) => voice.name === name);
+
+    if (preferredVoice) {
+      return preferredVoice;
+    }
+  }
+
+  return (
+    voices.find(
+      (voice) =>
+        voice.lang === "en-US" &&
+        /premium|enhanced|natural/i.test(voice.name),
+    ) ||
+    voices.find((voice) => voice.lang === "en-US" && voice.localService) ||
+    voices.find((voice) => voice.lang.startsWith("en")) ||
+    null
+  );
+}
+
+function speak(text) {
+  if (!("speechSynthesis" in window)) {
+    return;
+  }
+
+  narrationText = text;
+  narrationOffset = 0;
+  narrationGeneration += 1;
+  window.speechSynthesis.cancel();
+  continueNarration();
+}
+
+function updateNarrationVolume() {
+  if (!activeUtterance || !window.speechSynthesis?.speaking) {
+    return;
+  }
+
+  narrationGeneration += 1;
+  window.speechSynthesis.cancel();
+  continueNarration();
+}
+
+function setDiscoveryStep(step) {
+  if (step === activeStep) {
+    return;
+  }
+
+  activeStep = step;
+  loadingShell.dataset.step = String(step);
+  discoveryVisual.dataset.step = String(step);
+  discoveryCaptions.forEach((caption, index) => {
+    caption.classList.toggle("is-active", index === step);
+    caption.classList.toggle("is-done", index < step);
+  });
+  speak(activeTopic.captions[step]);
+}
+
+function getViewedTopicIds() {
+  try {
+    const savedIds = JSON.parse(localStorage.getItem(viewedTopicsKey) || "[]");
+    const validIds = topics.map((topic) => topic.id);
+
+    return Array.isArray(savedIds)
+      ? savedIds.filter((id) => validIds.includes(id))
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveViewedTopic(id) {
+  try {
+    const viewedIds = getViewedTopicIds();
+    localStorage.setItem(
+      viewedTopicsKey,
+      JSON.stringify([...new Set([...viewedIds, id])]),
+    );
+  } catch {
+    // The discovery still works when browser storage is unavailable.
+  }
+}
+
+function chooseDiscoveryTopic() {
+  const requestedTopic = new URLSearchParams(window.location.search).get("topic");
+  const requested = topics.find((topic) => topic.id === requestedTopic);
+
+  // A fixed query is useful for reviewing one animation without changing history.
+  if (requested) {
+    return requested;
+  }
+
+  let viewedIds = getViewedTopicIds();
+  let unseenTopics = topics.filter((topic) => !viewedIds.includes(topic.id));
+
+  if (unseenTopics.length === 0) {
+    viewedIds = [];
+    unseenTopics = topics;
+
+    try {
+      localStorage.removeItem(viewedTopicsKey);
+    } catch {
+      // Continue with an in-memory random choice.
+    }
+  }
+
+  const topic = unseenTopics[Math.floor(Math.random() * unseenTopics.length)];
+  saveViewedTopic(topic.id);
+  return topic;
+}
+
+function prepareDiscovery() {
+  activeTopic = chooseDiscoveryTopic();
+  activeStep = -1;
+  discoveryTitle.textContent = activeTopic.title;
+  discoveryVisual.innerHTML = activeTopic.visual();
+  discoveryVisual.className = `discovery-visual visual-stage ${activeTopic.id}`;
+  discoveryCaptions.forEach((caption, index) => {
+    caption.querySelector("p").textContent = activeTopic.captions[index];
+    caption.classList.remove("is-active", "is-done");
+  });
+  loadingCopy.textContent = "Lesson loading...";
+  upNextBar.classList.remove("is-ready");
+  watchVideoButton.hidden = true;
+
+  window.requestAnimationFrame(() => {
+    window.requestAnimationFrame(() => setDiscoveryStep(0));
+  });
+}
+
+function loadVideo() {
+  const iframe = document.createElement("iframe");
+
+  iframe.src =
+    "https://www.youtube-nocookie.com/embed/oJFLO-0cZr0?autoplay=1&rel=0&hl=en";
+  iframe.title = "We Are SR1!";
+  iframe.allow =
+    "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
+  iframe.referrerPolicy = "strict-origin-when-cross-origin";
+  iframe.allowFullscreen = true;
+
+  window.speechSynthesis?.cancel();
+  loadingShell.hidden = true;
+  videoFrame.classList.remove("is-loading");
+  videoFrame.appendChild(iframe);
+  lessonNote.classList.remove("is-pending");
+  lessonNote.setAttribute("aria-hidden", "false");
+  completeButton.disabled = false;
+}
+
+function startVideoLoading() {
+  const startedAt = performance.now();
+
+  requestMobileLandscape();
+  videoPoster.hidden = true;
+  loadingShell.hidden = false;
+  videoFrame.classList.add("is-loading");
+  loadingTrack.setAttribute("aria-valuenow", "0");
+  prepareDiscovery();
+
+  function updateLoading(now) {
+    const elapsed = Math.min(now - startedAt, loadingDuration);
+    const progress = (elapsed / loadingDuration) * 100;
+
+    loadingFill.style.width = `${progress}%`;
+    loadingTrack.setAttribute("aria-valuenow", String(Math.round(progress)));
+
+    if (elapsed >= stepTimes[2]) {
+      setDiscoveryStep(2);
+    } else if (elapsed >= stepTimes[1]) {
+      setDiscoveryStep(1);
+    }
+
+    if (elapsed < loadingDuration) {
+      window.requestAnimationFrame(updateLoading);
+      return;
+    }
+
+    window.speechSynthesis?.cancel();
+    loadingCopy.textContent = "Lesson ready";
+    upNextBar.classList.add("is-ready");
+    discoveryCaptions.forEach((caption) => {
+      caption.classList.remove("is-active");
+      caption.classList.add("is-done");
+    });
+    watchVideoButton.hidden = false;
+  }
+
+  window.requestAnimationFrame(updateLoading);
+}
 
 function celebrateCompletion() {
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -70,6 +351,19 @@ menuButton.addEventListener("click", () => {
   mobileNavigation.hidden = isOpen;
 });
 
+videoPoster.addEventListener("click", startVideoLoading, { once: true });
+watchVideoButton.addEventListener("click", loadVideo, { once: true });
+
+narrationButton.addEventListener("click", () => {
+  narrationEnabled = !narrationEnabled;
+  narrationButton.setAttribute("aria-pressed", String(narrationEnabled));
+  narrationButton.setAttribute(
+    "aria-label",
+    narrationEnabled ? "Mute narration" : "Unmute narration",
+  );
+  updateNarrationVolume();
+});
+
 completeButton.addEventListener("click", () => {
   currentLesson.classList.remove("current");
   currentLesson.classList.add("complete");
@@ -81,8 +375,6 @@ completeButton.addEventListener("click", () => {
     </svg>
   `;
   lessonStatus.setAttribute("aria-label", "Completed");
-  nowPlaying.remove();
-
   courseProgress.setAttribute("aria-label", "Course progress: 50 percent");
   courseProgressValue.textContent = "50%";
   courseProgressFill.style.width = "50%";
@@ -91,6 +383,7 @@ completeButton.addEventListener("click", () => {
 
   completeButton.textContent = "Lesson complete";
   completeButton.disabled = true;
+  completeButton.classList.add("lesson-finished");
   completeButton.classList.add("just-completed");
   currentLesson.classList.add("just-completed");
   celebrateCompletion();

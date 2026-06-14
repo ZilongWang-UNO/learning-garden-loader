@@ -14,7 +14,7 @@
       href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=20260613-21" />
   </head>
   <body>
     <a class="skip-link" href="#lesson-content">Skip to lesson</a>
@@ -136,7 +136,6 @@
                   <small>Lesson 2</small>
                   Welcome to SR1
                 </span>
-                <span class="now-playing">Now playing</span>
               </button>
             </li>
             <li>
@@ -169,7 +168,7 @@
 
         <section class="lesson-panel" aria-labelledby="lesson-title">
           <div class="lesson-meta">
-            <span class="subject-pill">Community & STEM</span>
+            <h2 id="lesson-title">We Are SR1!</h2>
             <span class="duration">
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <circle cx="12" cy="12" r="9" />
@@ -179,23 +178,124 @@
             </span>
           </div>
 
-          <h2 id="lesson-title">We Are SR1!</h2>
           <p class="lesson-intro">
             Watch this short introduction to learn what SR1 does and who it serves.
           </p>
 
-          <div class="video-frame">
-            <iframe
-              src="https://www.youtube-nocookie.com/embed/oJFLO-0cZr0?rel=0"
-              title="We Are SR1!"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-              referrerpolicy="strict-origin-when-cross-origin"
-              allowfullscreen
-            ></iframe>
+          <div class="video-frame" id="video-frame">
+            <button class="video-poster" id="video-poster" type="button">
+              <img
+                src="https://i.ytimg.com/vi/oJFLO-0cZr0/maxresdefault.jpg"
+                alt=""
+              />
+              <span class="poster-shade" aria-hidden="true"></span>
+              <span class="poster-label">
+                <strong>We Are SR1!</strong>
+                <small>C.O.O.L.™ Media Network</small>
+              </span>
+              <span class="poster-play" aria-hidden="true">
+                <svg viewBox="0 0 24 24">
+                  <path d="m9 7 8 5-8 5z" />
+                </svg>
+              </span>
+              <span class="sr-only">Play lesson video</span>
+            </button>
+
+            <div
+              class="loading-shell"
+              id="loading-shell"
+              hidden
+            >
+              <div class="prelesson-header">
+                <div class="prelesson-label">
+                  <span class="prelesson-dot" aria-hidden="true"></span>
+                  <strong>Quick Discovery</strong>
+                </div>
+                <button
+                  class="narration-button"
+                  id="narration-button"
+                  type="button"
+                  aria-pressed="true"
+                  aria-label="Mute narration"
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M11 5 6.5 9H3v6h3.5l4.5 4z" />
+                    <path class="sound-waves" d="M15 9a4 4 0 0 1 0 6M17.5 6.5a7.5 7.5 0 0 1 0 11" />
+                    <path class="sound-slash" d="m4 4 16 16" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="garden-book">
+                <section class="garden-page">
+                  <h3 id="discovery-title">A quick STEM discovery</h3>
+                  <span class="title-underline" aria-hidden="true"></span>
+
+                  <div
+                    class="discovery-visual visual-stage"
+                    id="discovery-visual"
+                    aria-live="off"
+                  ></div>
+                </section>
+
+                <aside class="narration-card" aria-label="Narrated explanation">
+                  <p class="narration-heading">Listen &amp; follow along</p>
+
+                  <div class="caption-list" aria-live="polite">
+                    <article class="discovery-caption is-active" data-caption="0">
+                      <span>1</span>
+                      <p></p>
+                    </article>
+                    <article class="discovery-caption" data-caption="1">
+                      <span>2</span>
+                      <p></p>
+                    </article>
+                    <article class="discovery-caption" data-caption="2">
+                      <span>3</span>
+                      <p></p>
+                    </article>
+                  </div>
+
+                </aside>
+              </div>
+
+              <div class="up-next-bar">
+                <span class="up-next-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path d="m9 7 8 5-8 5z" />
+                  </svg>
+                </span>
+                <span class="up-next-copy">
+                  <small>Up next</small>
+                  <strong>We Are SR1!</strong>
+                </span>
+                <span class="garden-loading-copy" role="status" aria-live="polite">
+                  Lesson loading...
+                </span>
+                <button class="watch-video-button" id="watch-video-button" type="button" hidden>
+                  <span class="watch-play-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24">
+                      <path d="m9 7 8 5-8 5z" />
+                    </svg>
+                  </span>
+                  Play lesson video
+                </button>
+                <div
+                  class="video-loading-track"
+                  role="progressbar"
+                  aria-label="Video loading progress"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                  aria-valuenow="0"
+                >
+                  <span id="video-loading-fill"></span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="lesson-actions">
-            <div class="lesson-note">
+            <div class="lesson-note is-pending" aria-hidden="true">
               <span aria-hidden="true">
                 <svg viewBox="0 0 24 24">
                   <path d="M12 3a7 7 0 0 0-4 12.74V19h8v-3.26A7 7 0 0 0 12 3Z" />
@@ -205,7 +305,7 @@
               <p><strong>While you watch:</strong> Notice the three areas SR1 focuses on.</p>
             </div>
 
-            <button class="next-button" type="button">
+            <button class="next-button" type="button" disabled>
               Mark complete
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <path d="m9 18 6-6-6-6" />
@@ -216,6 +316,6 @@
       </div>
     </main>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js?v=20260613-21"></script>
   </body>
 </html>
