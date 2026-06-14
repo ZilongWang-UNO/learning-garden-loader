@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260614-28";
+import { topics } from "./topics.js?v=20260614-29";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
@@ -41,6 +41,7 @@ let narrationOffset = 0;
 let narrationGeneration = 0;
 let loadingStarted = false;
 let mobilePlayerSessionActive = false;
+let lessonVideoActive = false;
 
 function isMobileDevice() {
   const mobileUserAgent =
@@ -275,8 +276,15 @@ function loadVideo() {
     autoplay: "1",
     rel: "0",
     hl: "en",
-    playsinline: mobilePlayback ? "0" : "1",
   });
+
+  if (!mobilePlayback) {
+    playerParams.set("playsinline", "1");
+  }
+
+  lessonVideoActive = true;
+  mobilePlayerSessionActive = false;
+  syncMobileViewportLayout();
 
   iframe.src =
     `https://www.youtube-nocookie.com/embed/oJFLO-0cZr0?${playerParams}`;
@@ -435,6 +443,10 @@ orientationHint.addEventListener("keydown", (event) => {
 });
 
 function handleMobileOrientationChange() {
+  if (lessonVideoActive) {
+    return;
+  }
+
   syncMobileViewportLayout();
 }
 
