@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260614-33";
+import { topics } from "./topics.js?v=20260614-34";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
@@ -265,7 +265,7 @@ function prepareDiscovery() {
   upNextBar.classList.remove("is-ready");
   watchVideoButton.hidden = true;
   watchVideoLabel.textContent = isMobileDevice()
-    ? "Watch on YouTube"
+    ? "Open video player"
     : "Play lesson video";
 
   window.requestAnimationFrame(() => {
@@ -273,7 +273,7 @@ function prepareDiscovery() {
   });
 }
 
-function loadVideo(event) {
+function loadVideo() {
   const iframe = document.createElement("iframe");
   const mobilePlayback = mobilePlayerSessionActive || isMobileDevice();
 
@@ -282,13 +282,8 @@ function loadVideo(event) {
   lessonNote.setAttribute("aria-hidden", "false");
   completeButton.disabled = false;
 
-  if (mobilePlayback) {
-    return;
-  }
-
-  event.preventDefault();
   const playerParams = new URLSearchParams({
-    autoplay: "1",
+    autoplay: mobilePlayback ? "0" : "1",
     rel: "0",
     hl: "en",
     playsinline: "1",
