@@ -24,4 +24,6 @@ data without changing the loading flow.
 The implementation uses semantic HTML, responsive CSS, inline SVG animation,
 the browser Speech Synthesis API, and `localStorage`. It also includes captions,
 keyboard focus states, a narration mute control, readable contrast, and
-reduced-motion support.
+reduced-motion support. Mobile learners can request a landscape view, with a
+rotate-device fallback on iPhone, and video playback starts muted where mobile
+autoplay policies require it.

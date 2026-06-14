@@ -1,4 +1,4 @@
-import { topics } from "./topics.js?v=20260613-21";
+import { topics } from "./topics.js?v=20260614-22";
 
 const menuButton = document.querySelector(".menu-button");
 const mobileNavigation = document.querySelector("#mobile-navigation");
@@ -13,6 +13,7 @@ const lessonProgressCopy = document.querySelector("#lesson-progress-copy");
 const lessonProgressFill = document.querySelector("#lesson-progress-fill");
 const lessonPanel = document.querySelector(".lesson-panel");
 const lessonNote = document.querySelector(".lesson-note");
+const lessonNoteCopy = lessonNote.querySelector("p");
 const videoFrame = document.querySelector("#video-frame");
 const videoPoster = document.querySelector("#video-poster");
 const loadingShell = document.querySelector("#loading-shell");
@@ -23,6 +24,9 @@ const discoveryTitle = document.querySelector("#discovery-title");
 const discoveryVisual = document.querySelector("#discovery-visual");
 const discoveryCaptions = [...document.querySelectorAll(".discovery-caption")];
 const narrationButton = document.querySelector("#narration-button");
+const orientationButton = document.querySelector("#orientation-button");
+const orientationHint = document.querySelector("#orientation-hint");
+const orientationHintClose = document.querySelector("#orientation-hint-close");
 const watchVideoButton = document.querySelector("#watch-video-button");
 const upNextBar = document.querySelector(".up-next-bar");
 const loadingDuration = 20_000;
@@ -37,25 +41,40 @@ let narrationOffset = 0;
 let narrationGeneration = 0;
 const compactScreen = window.matchMedia("(max-width: 640px)");
 
-function requestMobileLandscape() {
+async function requestMobileLandscape() {
   if (!compactScreen.matches) {
-    return;
+    return false;
   }
 
   const lockOrientation = window.screen?.orientation?.lock;
   if (typeof lockOrientation !== "function") {
-    return;
+    return false;
   }
 
   try {
-    Promise.resolve(
-      lockOrientation.call(window.screen.orientation, "landscape"),
-    ).catch(() => {
-      // Most mobile browsers only permit orientation locking in fullscreen apps.
-    });
+    await lockOrientation.call(window.screen.orientation, "landscape");
+    return true;
   } catch {
-    // Continue with the responsive portrait layout when locking is unavailable.
+    return false;
   }
+}
+
+function isMobilePlayback() {
+  const mobileUserAgent =
+    /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+
+  return (
+    mobileUserAgent ||
+    (window.matchMedia("(pointer: coarse)").matches &&
+      Math.min(window.screen?.width || window.innerWidth, window.innerWidth) <=
+        1024)
+  );
+}
+
+function closeOrientationHint() {
+  orientationHint.hidden = true;
+  orientationButton.focus({ preventScroll: true });
 }
 
 function continueNarration() {
@@ -234,9 +253,20 @@ function prepareDiscovery() {
 
 function loadVideo() {
   const iframe = document.createElement("iframe");
+  const mobilePlayback = isMobilePlayback();
+  const playerParams = new URLSearchParams({
+    autoplay: "1",
+    rel: "0",
+    hl: "en",
+    playsinline: "1",
+  });
+
+  if (mobilePlayback) {
+    playerParams.set("mute", "1");
+  }
 
   iframe.src =
-    "https://www.youtube-nocookie.com/embed/oJFLO-0cZr0?autoplay=1&rel=0&hl=en";
+    `https://www.youtube-nocookie.com/embed/oJFLO-0cZr0?${playerParams}`;
   iframe.title = "We Are SR1!";
   iframe.allow =
     "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";
@@ -249,13 +279,16 @@ function loadVideo() {
   videoFrame.appendChild(iframe);
   lessonNote.classList.remove("is-pending");
   lessonNote.setAttribute("aria-hidden", "false");
+  if (mobilePlayback) {
+    lessonNoteCopy.innerHTML =
+      "<strong>Video started muted:</strong> Tap the player speaker for sound.";
+  }
   completeButton.disabled = false;
 }
 
 function startVideoLoading() {
   const startedAt = performance.now();
 
-  requestMobileLandscape();
   videoPoster.hidden = true;
   loadingShell.hidden = false;
   videoFrame.classList.add("is-loading");
@@ -362,6 +395,32 @@ narrationButton.addEventListener("click", () => {
     narrationEnabled ? "Mute narration" : "Unmute narration",
   );
   updateNarrationVolume();
+});
+
+orientationButton.addEventListener("click", async () => {
+  const locked = await requestMobileLandscape();
+
+  if (!locked && window.matchMedia("(orientation: portrait)").matches) {
+    orientationHint.hidden = false;
+    orientationHintClose.focus({ preventScroll: true });
+  }
+});
+
+orientationHintClose.addEventListener("click", closeOrientationHint);
+
+window.addEventListener("orientationchange", () => {
+  if (window.matchMedia("(orientation: landscape)").matches) {
+    orientationHint.hidden = true;
+
+    window.setTimeout(() => {
+      videoFrame.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "auto"
+          : "smooth",
+        block: "center",
+      });
+    }, 200);
+  }
 });
 
 completeButton.addEventListener("click", () => {
