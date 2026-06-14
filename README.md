@@ -3,7 +3,7 @@
 A framework-free prototype that turns a 20-second video delay into a short,
 narrated STEM discovery for K-12 learners.
 
-[View the live prototype](https://zilongwang-uno.github.io/learning-garden-loader/)
+[View the live prototype](https://zilongwang-uno.github.io/sr1-learning-loader/)
 
 ![SR1 Quick Discovery loading experience](preview.png)
 
