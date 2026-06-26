@@ -127,10 +127,14 @@ svg {
 }
 
 .desktop-nav {
+  position: absolute;
+  left: 50%;
   display: flex;
   align-self: stretch;
   align-items: center;
   gap: clamp(24px, 3vw, 48px);
+  height: 100%;
+  transform: translateX(-50%);
 }
 
 .desktop-nav a {
